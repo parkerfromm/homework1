@@ -1,0 +1,23 @@
+start steepest descent with golden section line search
+Initial energy: -5.24317
+Stepsize for central difference is:0.0001Initial stepsize for line search is:0.3Threshold for convergence in force is:0.01
+Central Difference Force
+-0 -0 
+-0 -0 
+1.80352 -1.80352 
+ Start steepest descent with golden section line search using central difference force
+Start golden section search
+new_point
+new_point
+00
+00
+-0.0030153.00301
+Central Difference Force
+-0 -0 
+-0 -0 
+1.80352 -1.80352 
+Total iterations: 1
+Final energy: -5.23175
+Otpized Structure:
+79(0 0 -0.003015 )
+79(0 0 3.00301 )
