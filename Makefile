@@ -13,4 +13,4 @@ run:
 	./$(EXCS)
 
 clean:
-	rm -f $(EXE)
+	rm -f $(EXCS)

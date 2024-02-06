@@ -81,7 +81,7 @@ vector<vector<double>> Lennard_Jones::read_xyz(string file_path)
             {
                 if (myfile >> current)
                 {
-                    cout << current << " ";
+                    // cout << current << " "; uncomment if you want them printed to command line each time the function is ran
                     coords.push_back(current);
                 }
             }
@@ -91,7 +91,7 @@ vector<vector<double>> Lennard_Jones::read_xyz(string file_path)
                 atom_coords.push_back(coords);
             }
 
-            cout << endl;
+            // cout << endl;
         }
 
         return atom_coords;
@@ -100,7 +100,7 @@ vector<vector<double>> Lennard_Jones::read_xyz(string file_path)
 
 double Lennard_Jones::calculate_distance(vector<double> coord_1, vector<double> coord_2)
 {
-    // cout << "hi im distance" << endl;
+
     return sqrt(pow(coord_1[0] - coord_2[0], 2) + pow(coord_1[1] - coord_2[1], 2) + pow(coord_1[2] - coord_2[2], 2));
 }
 
@@ -197,24 +197,19 @@ double Lennard_Jones::calculate_forward_difference_force(int component, int atom
         {
             if (i == component)
             {
-                plus_h.push_back(atom_coords[k][i] + h);
+                plus_h.push_back(coords[k][i] + h);
                 continue;
             }
-            plus_h.push_back(atom_coords[k][i]);
+            plus_h.push_back(coords[k][i]);
         }
 
-        // for (int i = 0; i < num_of_atoms; i++)
-        // {
-        //     coords_plus_h[i][component] += h;
-        // }
-
-        for (int i = 0; i < num_of_atoms; i++)
+        for (int i = 0; i < coords.size(); i++)
         {
 
             if (i != k)
             {
-                energy_h += calculate_energy(plus_h, atom_coords[i]);
-                energy += calculate_energy(atom_coords[k], atom_coords[i]);
+                energy_h += calculate_energy(plus_h, coords[i]);
+                energy += calculate_energy(coords[k], coords[i]);
             }
         }
         force = -(energy_h - energy) / h;
@@ -232,36 +227,28 @@ double Lennard_Jones::calculate_finite_difference_force(int component, int atom_
         double force = 0;
         double energy_plus = 0;
         double energy_minus = 0;
-        // vector<vector<double>> coords_minus_h = atom_coords;
 
-        // for (int i = 0; i < num_of_atoms; i++)
-        // {
-        //     coords_plus_h[i][component] += h;
-        //     coords_minus_h[i][component] -= h;
-        // }
         vector<double> plus_h;
         vector<double> minus_h;
         for (int i = 0; i < 3; i++)
         {
             if (i == component)
             {
-                plus_h.push_back(atom_coords[k][i] + h);
-                minus_h.push_back(atom_coords[k][i] - h);
+                plus_h.push_back(coords[k][i] + h);
+                minus_h.push_back(coords[k][i] - h);
                 continue;
             }
-            plus_h.push_back(atom_coords[k][i]);
-            minus_h.push_back(atom_coords[k][i]);
+            plus_h.push_back(coords[k][i]);
+            minus_h.push_back(coords[k][i]);
         }
-        // vector<double>
-        //     x_plus_h = { atom_coords[] }
 
-        for (int i = 0; i < num_of_atoms; i++)
+        for (int i = 0; i < coords.size(); i++)
         {
 
             if (i != k)
             {
-                energy_plus += calculate_energy(plus_h, atom_coords[i]);
-                energy_minus += calculate_energy(minus_h, atom_coords[i]);
+                energy_plus += calculate_energy(plus_h, coords[i]);
+                energy_minus += calculate_energy(minus_h, coords[i]);
             }
         }
         force = -(energy_plus - energy_minus) / (2 * h);
@@ -409,8 +396,6 @@ vector<vector<double>> Lennard_Jones::return_analytic_force(vector<vector<double
             for (int i = 0; i < 3; i++)
             {
                 force.push_back(calculate_analytic_force(i, j, coords));
-
-                // forces[j][i] = calculate_analytic_force(i, j, coords);
             }
             forces.push_back(force);
         }
@@ -449,15 +434,12 @@ vector<vector<double>> Lennard_Jones::return_forward_difference_force(vector<vec
         vector<vector<double>> forces;
         double h = stepsize;
 
-        // vector<double> force(3);
         for (int j = 0; j < coords.size(); j++)
         {
             vector<double> force;
             for (int i = 0; i < 3; i++)
             {
                 force.push_back(calculate_forward_difference_force(i, j, h, coords));
-
-                // forces[j][i] = calculate_analytic_force(i, j, coords);
             }
             forces.push_back(force);
         }
@@ -477,30 +459,26 @@ vector<vector<vector<double>>> Lennard_Jones::optimize(vector<vector<double>> co
         int count = 0;
         while (difference > threshold)
         {
-            cout << "hi im not convered" << endl;
 
             double current_energy = total_energy(current_pos);
-            // vector<vector<double>> current_forces = return_analytic_force(current_pos);
+
             vector<vector<double>> current_forces = return_central_difference_force(current_pos, 0.0001);
-            cout
-                << current_forces.size() << "size" << endl;
+
             vector<vector<double>> normalized_force = current_forces;
-            cout << " :(" << endl;
+
             for (int i = 0; i < current_pos.size(); i++)
             {
-                cout << i << endl;
+
                 double magnitude = calculate_distance({0.0, 0.0, 0.0}, current_forces[i]);
                 if (magnitude == 0)
                 {
                     normalized_force[i] = {0, 0, 0};
-                    cout << "hi im zero" << endl;
                 }
                 else
                 {
                     normalized_force[i][0] /= magnitude;
                     normalized_force[i][1] /= magnitude;
                     normalized_force[i][2] /= magnitude;
-                    cout << "hi im normalized" << endl;
                 }
             }
 
@@ -527,8 +505,6 @@ vector<vector<vector<double>>> Lennard_Jones::optimize(vector<vector<double>> co
                     current_pos[i][j] = c;
                     energy_c = total_energy(current_pos);
 
-                    cout << energy_a << " " << energy_b << " " << energy_c << endl;
-
                     while ((energy_b > energy_a))
                     {
                         h /= 2;
@@ -546,34 +522,6 @@ vector<vector<vector<double>>> Lennard_Jones::optimize(vector<vector<double>> co
                         energy_c = total_energy(current_pos);
                     }
 
-                    // double h = 1;
-                    // double minStepSize = 1e-6; // Define a minimum step size to prevent infinite looping
-                    // bool decreaseFound = false;
-
-                    // while (!decreaseFound && h > minStepSize)
-                    // {
-                    //     double b = a - normalized_force[i][j] * h;
-                    //     current_pos[i][j] = b;
-                    //     double energy_b = total_energy(current_pos);
-
-                    //     // Check if energy decreased from 'a' to 'b'
-                    //     if (energy_b < energy_a)
-                    //     {
-                    //         decreaseFound = true; // Found a decrease in energy
-                    //     }
-                    //     else
-                    //     {
-                    //         h /= 2; // Halve step size and try again
-                    //     }
-                    // }
-
-                    // if (decreaseFound)
-                    // {
-                    //     double c = b - normalized_force[i][j] * h;
-                    //     current_pos[i][j] = c;
-                    //     double energy_c = total_energy(current_pos);
-                    // }
-
                     double tau = (sqrt(5.0) - 1.0) / 2.0;
                     double x1, x2, energy_x1, energy_x2;
 
@@ -582,7 +530,7 @@ vector<vector<vector<double>>> Lennard_Jones::optimize(vector<vector<double>> co
 
                     while (std::abs(energy_c - energy_a) > threshold)
                     {
-                        cout << "in loop" << endl;
+
                         x1 = a + (1 - tau) * (c - a);
                         x2 = a + tau * (c - a);
                         current_pos[i][j] = x1;
@@ -596,27 +544,14 @@ vector<vector<vector<double>>> Lennard_Jones::optimize(vector<vector<double>> co
                             energy_c = total_energy(current_pos);
                             x = x1;
                             energy_x = energy_x1;
-                            // b = x;
-                            // force_c = force_b;
-                            // force_b = force_x;
-                            // x = a + (c - a) * (3 - sqrt(5)) / 2;
-                            // current_pos[i][j] = x;
-                            // force_x = calculate_analytic_force(j, i, current_pos);
                         }
                         else
                         {
                             a = x1;
-                            // x = b;
                             energy_a = total_energy(current_pos);
                             x = x2;
                             energy_x = energy_x2;
-                            // force_a = force_x;
-                            // force_x = force_b;
-                            // b = a + (c - a) * (std::sqrt(5) - 1) / 2;
-                            // current_pos[i][j] = b;
-                            // force_b = calculate_analytic_force(j, i, current_pos);
                         }
-                        // current_pos[i][j] = (a + c) / 2;
                     }
                     count++;
 
@@ -627,24 +562,12 @@ vector<vector<vector<double>>> Lennard_Jones::optimize(vector<vector<double>> co
             double energy_final = total_energy(next_pos);
             difference = std::abs(energy_final - current_energy);
             current_pos = next_pos;
-            cout << difference << endl;
             visted.push_back(current_pos);
             return visted;
         }
     }
 }
 
-// Lennard_Jones gold_cluster(79, 5.29, 2.951);
-// gold_cluster.read_xyz(file_path);
-// gold_cluster.total_energy();
-// gold_cluster.print_output();
-
-// Lennard_Jones gold_cluster_F(79, 5.29, 2.951);
-// gold_cluster_F.read_xyz("1F.txt");
-// gold_cluster_F.print_output_force();
-
-// Lennard_Jones gold_cluster(79, 5.29, 2.951);
-// gold_cluster.read_xyz(file_path);
 int main(int argc, char *argv[])
 {
     string file_path1 = argv[1];
@@ -685,12 +608,17 @@ int main(int argc, char *argv[])
         {
             for (int j = 0; j < coords_2.size(); j++)
             {
+                if (i == 2 && j == coords_2.size() - 1)
+                {
+                    myfileg << analytic_force[j][i];
+                    continue;
+                }
                 myfile2 << analytic_force[j][i] << " ";
-                myfileg << analytic_force[j][i] << ", ";
+                myfileg << analytic_force[j][i] << ",";
             }
             myfile2 << endl;
-            myfile2 << endl;
         }
+        myfileg << endl;
         analytic_force = gold_cluster_2.return_analytic_force(coords_2);
 
         // myfile << "Stepsize for finite difference:0.1" << endl;
@@ -728,12 +656,17 @@ int main(int argc, char *argv[])
             {
                 for (int j = 0; j < coords_2.size(); j++)
                 {
+                    if (i == 2 && j == coords_2.size() - 1)
+                    {
+                        myfileg << forces[j][i];
+                        continue;
+                    }
                     myfile2 << forces[j][i] << " ";
-                    myfileg << forces[j][i] << ", ";
+                    myfileg << forces[j][i] << ",";
                 }
                 myfile2 << endl;
-                myfileg << endl;
             }
+            myfileg << endl;
 
             myfile2 << "F_LJ central difference" << endl;
             forces = gold_cluster_2.return_central_difference_force(coords_2, h);
@@ -742,13 +675,17 @@ int main(int argc, char *argv[])
             {
                 for (int j = 0; j < coords_2.size(); j++)
                 {
-
+                    if (i == 2 && j == coords_2.size() - 1)
+                    {
+                        myfileg << forces[j][i];
+                        continue;
+                    }
                     myfile2 << forces[j][i] << " ";
-                    myfileg << forces[j][i] << ", ";
+                    myfileg << forces[j][i] << ",";
                 }
                 myfile2 << endl;
-                myfileg << endl;
             }
+            myfileg << endl;
             h *= 0.1;
         }
     }

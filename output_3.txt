@@ -15,7 +15,7 @@ new_point
 Central Difference Force
 -0 -0 
 -0 -0 
-1.80352 -1.80352 
+1.98341 -1.98341 
 Total iterations: 1
 Final energy: -5.23175
 Otpized Structure:
